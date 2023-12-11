@@ -2,19 +2,16 @@ from datetime import datetime
 
 from sqlalchemy import Table, MetaData, Column, String, Integer, Text, Boolean, Date, ForeignKey, Float, DECIMAL, Enum
 
+
+from sqlalchemy.dialects.postgresql import ENUM
+
 metadata = MetaData()
 
+language_enum = ENUM('English',
+                     'Uzbek',
+                     'Russian')
 
-class LanguageEnum(Enum):
-    English = 'English'
-    Uzbek = 'Uzbek'
-    Russian = 'Russian'
-
-
-class RoleEnum(Enum):
-    admin = 'admin'
-    user = 'user'
-
+role_enum = ENUM('admin', 'user')
 
 users_data = Table(
     'userdata',
@@ -25,7 +22,7 @@ users_data = Table(
     Column('email', String, unique=True),
     Column('balance', Float, default=10000.0),
     Column('password', String),
-    Column('language', Enum(LanguageEnum)),
+    Column('language', language_enum),
     Column('birth_date', Date),
     Column('registered_date', default=datetime.utcnow()),
 )
@@ -34,7 +31,7 @@ user_role = Table(
     'user_role',
     metadata,
     Column('id', Integer, primary_key=True, autoincrement=True),
-    Column('role_name', Enum(RoleEnum), default=RoleEnum.user),
+    Column('role_name', role_enum, default='user'),
     Column('user_id', ForeignKey('userdata.id'))
 )
 
@@ -71,19 +68,16 @@ user_payment_model = Table(
     Column('cost', ForeignKey('tools.id')),
 )
 
-
-class StatusEnum(Enum):
-    delivered = 'Delivered',
-    processing = 'Processing',
-    cancelled = 'Cancelled'
-
+status_enum = ENUM('Delivered'
+                   'Processing'
+                   'Cancelled')
 
 user_payment_status = Table(
     'user_payment_status',
     metadata,
     Column('id', Integer, primary_key=True, autoincrement=True),
     Column('payment_id', ForeignKey('user_payment.id')),
-    Column('payment_status', Enum(StatusEnum)),
+    Column('payment_status', status_enum),
     Column('user_id', ForeignKey('user_payment.user_id'))
 )
 
