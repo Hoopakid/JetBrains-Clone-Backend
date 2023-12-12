@@ -10,7 +10,7 @@ logs/
 .db
 dist/
 build/
-alembic/versions/
+migrations/versions/
 *.log
 *.pot
 *.manifest
