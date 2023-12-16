@@ -8,6 +8,7 @@ from sqlalchemy.dialects.postgresql import ENUM
 
 metadata = MetaData()
 
+
 class LanguageEnum(enum.Enum):
     uz = 'Uzbek'
     eng = 'English'
@@ -46,3 +47,13 @@ class StatusEnum(enum.Enum):
     men = 'Delivered'
     women = 'Processing'
     kids = 'Cancelling'
+
+
+tool = Table(
+    'tools',
+    metadata,
+    Column('id', Integer, primary_key=True, autoincrement=True),
+    Column('tool_name', String),
+    Column('monthly_fee', Float),
+    Column('yearly_fee', Float),
+)
