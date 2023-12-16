@@ -8,11 +8,6 @@ from sqlalchemy.dialects.postgresql import ENUM
 
 metadata = MetaData()
 
-language_enum = ENUM('English',
-                     'Uzbek',
-                     'Russian')
-
-
 class LanguageEnum(enum.Enum):
     uz = 'Uzbek'
     eng = 'English'

@@ -1,6 +1,7 @@
 from datetime import datetime, date
 from pydantic import BaseModel
 
+
 class User(BaseModel):
     full_name: str
     username: str
@@ -10,7 +11,7 @@ class User(BaseModel):
     password2: str
     language: str
     birth_date: date
-    registered_date: date
+    registered_date: datetime
 
 
 class UserInDB(BaseModel):
@@ -21,7 +22,7 @@ class UserInDB(BaseModel):
     password: str
     language: str
     birth_date: date
-    registered_date: date
+    registered_date: datetime
 
 
 class UserInfo(BaseModel):
