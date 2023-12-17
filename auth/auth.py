@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from schema import UserInfo, User, UserInDB, UserLogin
+from .schema import UserInfo, User, UserInDB, UserLogin
 from database import get_async_session
 
 from sqlalchemy import select, insert
@@ -10,7 +10,7 @@ from fastapi import Depends, APIRouter, HTTPException
 from dotenv import load_dotenv
 from passlib.context import CryptContext
 
-from utils import verify_token, generate_token
+from .utils import verify_token, generate_token
 from models.models import users_data
 
 load_dotenv()

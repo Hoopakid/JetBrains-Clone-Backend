@@ -1,8 +1,10 @@
 from datetime import datetime
 
 import enum
+from sqlite3 import Timestamp
 
-from sqlalchemy import Table, MetaData, Column, String, Integer, Text, Boolean, Date, ForeignKey, Float, DECIMAL, Enum
+from sqlalchemy import Table, MetaData, Column, String, Integer, Text, Boolean, Date, ForeignKey, Float, DECIMAL, Enum, \
+    TIMESTAMP
 
 from sqlalchemy.dialects.postgresql import ENUM
 
@@ -31,7 +33,7 @@ users_data = Table(
     Column('password', String),
     Column('language', Enum(LanguageEnum)),
     Column('birth_date', Date),
-    Column('registered_date', default=datetime.utcnow()),
+    Column('registered_date', TIMESTAMP(timezone=True), nullable=True),
 )
 
 user_role = Table(
@@ -56,4 +58,46 @@ tool = Table(
     Column('tool_name', String),
     Column('monthly_fee', Float),
     Column('yearly_fee', Float),
+)
+
+
+class LifeTimeEnum(enum.Enum):
+    month = 'month'
+    year = 'year'
+
+
+payment_model = Table(
+    'payment_model',
+    metadata,
+    Column('id', Integer, primary_key=True, autoincrement=True),
+    Column('user_id', Integer, ForeignKey('userdata.id'), ),
+    Column('tool_id', Integer, ForeignKey('tools.id')),
+    Column('lifetime', Enum(LifeTimeEnum)),
+    Column('created_at', TIMESTAMP, default=datetime.utcnow),
+)
+
+user_payment = Table(
+    'user_payment',
+    metadata,
+    Column('id', Integer, primary_key=True, autoincrement=True),
+    Column('payment_id', Integer, ForeignKey('payment_model.id')),
+    Column('user_id', Integer, ForeignKey('userdata.id')),
+    Column('status', Boolean, default=True),
+    Column('created_at', TIMESTAMP, default=datetime.utcnow)
+)
+
+user_coupon = Table(
+    'coupon',
+    metadata,
+    Column('id', Integer, primary_key=True, autoincrement=True),
+    Column('coupon', String),
+)
+
+user_custom_coupon = Table(
+    'custom_coupon',
+    metadata,
+    Column('id', Integer, primary_key=True, autoincrement=True),
+    Column('user_id', Integer, ForeignKey('userdata.id')),
+    Column('phone_number', Integer),
+    Column('coupon', String)
 )

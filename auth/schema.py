@@ -1,6 +1,8 @@
 from datetime import datetime, date
 from pydantic import BaseModel
 
+from models.models import LanguageEnum
+
 
 class User(BaseModel):
     full_name: str
@@ -9,7 +11,7 @@ class User(BaseModel):
     balance: float
     password1: str
     password2: str
-    language: str
+    language: LanguageEnum
     birth_date: date
     registered_date: datetime
 
@@ -20,7 +22,7 @@ class UserInDB(BaseModel):
     email: str
     balance: float
     password: str
-    language: str
+    language: LanguageEnum
     birth_date: date
     registered_date: datetime
 
