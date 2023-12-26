@@ -44,13 +44,6 @@ user_role = Table(
     Column('user_id', ForeignKey('userdata.id'))
 )
 
-
-class StatusEnum(enum.Enum):
-    men = 'Delivered'
-    women = 'Processing'
-    kids = 'Cancelling'
-
-
 tool = Table(
     'tools',
     metadata,
@@ -76,13 +69,20 @@ payment_model = Table(
     Column('created_at', TIMESTAMP, default=datetime.utcnow),
 )
 
+
+class StatusEnum(enum.Enum):
+    delivered = 'Delivered'
+    processing = 'Processing'
+    cancelling = 'Cancelling'
+
+
 user_payment = Table(
     'user_payment',
     metadata,
     Column('id', Integer, primary_key=True, autoincrement=True),
     Column('payment_id', Integer, ForeignKey('payment_model.id')),
     Column('user_id', Integer, ForeignKey('userdata.id')),
-    Column('status', Boolean, default=True),
+    Column('status', Enum(StatusEnum)),
     Column('created_at', TIMESTAMP, default=datetime.utcnow)
 )
 

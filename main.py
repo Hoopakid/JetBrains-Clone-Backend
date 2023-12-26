@@ -3,13 +3,14 @@ from pathlib import Path
 from fastapi import FastAPI, APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.sql import exists
 from fastapi.exceptions import HTTPException
 
 from auth.auth import register_router
 from auth.utils import verify_token
 from database import get_async_session
-from models.models import tool, payment_model
-from schemes import PaymentModel
+from models.models import tool, payment_model, LifeTimeEnum, users_data
+from schemes import PaymentModel, UserPayment
 
 app = FastAPI(title='JetBrains', version='1.0.0')
 router = APIRouter()
@@ -32,6 +33,24 @@ async def create_payment_model(payment: PaymentModel, session: AsyncSession = De
         return {"message": "Payment model created successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post('/payment')
+async def payment_user(payment: UserPayment, session: AsyncSession = Depends(get_async_session),
+                       token: dict = Depends(verify_token)):
+    user_id = token.get('user_id')
+    payment_query = select(payment_model).where(
+        (payment_model.c.id == payment.payment_id) & (payment_model.c.user_id == user_id)
+    )
+    if_payment = await session.execute(payment_query)
+    if not if_payment.scalar():
+        raise HTTPException(status_code=404, detail="Payment not found!!!")
+
+    user__balance = await session.execute(select(users_data).where(users_data.c.id == user_id))
+    print(user__balance)
+    for i in user__balance:
+        print(i)
+    return True
 
 
 app.include_router(register_router, prefix='/auth')

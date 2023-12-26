@@ -12,3 +12,8 @@ class ImageCreate(BaseModel):
 class PaymentModel(BaseModel):
     tool_id: int
     lifetime: LifeTimeEnum
+
+
+class UserPayment(BaseModel):
+    payment_id: int
+
