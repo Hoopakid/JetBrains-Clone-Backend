@@ -1,3 +1,4 @@
+import starlette.status as status
 from datetime import datetime
 
 from .schema import UserInfo, User, UserInDB, UserLogin
@@ -21,18 +22,26 @@ pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 @register_router.post('/register')
 async def register(user: User, session: AsyncSession = Depends(get_async_session)):
-    if user.password1 == user.password2:
-        if not select(users_data).where(users_data.c.username == user.username).exists:
-            return {'success': False, 'message': 'Username already exists!'}
-        if not select(users_data).where(users_data.c.email == user.email).exists:
-            return {'success': False, 'message': 'Email already exists!'}
-        password = pwd_context.hash(user.password1)
-        user_in_db = UserInDB(**dict(user), password=password, joined_at=datetime.utcnow())
-        query = insert(users_data).values(**dict(user_in_db))
-        await session.execute(query)
-        await session.commit()
-        user_info = UserInfo(**dict(user_in_db))
-        return dict(user_info)
+    try:
+        if user.password1 == user.password2:
+            print(1)
+            if not select(users_data).where(users_data.c.username == user.username).exists:
+                return {'success': False, 'message': 'Username already exists!'}
+            print(1)
+            if not select(users_data).where(users_data.c.email == user.email).exists:
+                return {'success': False, 'message': 'Email already exists!'}
+            print(1)
+            password = pwd_context.hash(user.password1)
+            user_in_db = UserInDB(**dict(user), password=password, joined_at=datetime.utcnow())
+            query = insert(users_data).values(**dict(user_in_db))
+            await session.execute(query)
+            await session.commit()
+            info_user = UserInfo(**dict(user_in_db))
+            return dict(info_user)
+        else:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=str(e))
 
 
 @register_router.post('/login')

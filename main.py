@@ -22,8 +22,14 @@ router = APIRouter()
 
 
 @router.post('/payment_model')
-async def create_payment_model(payment: PaymentModel, session: AsyncSession = Depends(get_async_session),
-                               token: dict = Depends(verify_token), ):
+async def create_payment_model(
+        payment: PaymentModel,
+        session: AsyncSession = Depends(get_async_session),
+        token: dict = Depends(verify_token),
+):
+    if token is None:
+        raise HTTPException(status_code=401, detail='Token not provided!')
+
     user_id = token.get('user_id')
 
     new_payment = insert(payment_model).values(
@@ -41,8 +47,14 @@ async def create_payment_model(payment: PaymentModel, session: AsyncSession = De
 
 
 @router.post('/payment')
-async def payment_user(payment: UserPayment, session: AsyncSession = Depends(get_async_session),
-                       token: dict = Depends(verify_token)):
+async def payment_user(
+        payment: UserPayment,
+        session: AsyncSession = Depends(get_async_session),
+        token: dict = Depends(verify_token)
+):
+    if token is None:
+        raise HTTPException(status_code=401, detail='Token not provided!')
+
     user_id = token.get('user_id')
     payment_query = select(payment_model).where(
         (payment_model.c.id == payment.payment_id) & (payment_model.c.user_id == user_id)
@@ -62,6 +74,9 @@ async def upload_file(
         session: AsyncSession = Depends(get_async_session),
         token: dict = Depends(verify_token),
 ):
+    if token is None:
+        raise HTTPException(status_code=401, detail='Token not provided!')
+
     user_id = token.get('user_id')
     result = await session.execute(
         select(user_role).where(
