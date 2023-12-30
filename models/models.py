@@ -53,6 +53,15 @@ tool = Table(
     Column('yearly_fee', Float),
 )
 
+file = Table(
+    'file',
+    metadata,
+    Column('id', Integer, primary_key=True, autoincrement=True),
+    Column('file', String),
+    Column('tool_id', ForeignKey('tools.id')),
+    Column('hash', String, unique=True)
+)
+
 
 class LifeTimeEnum(enum.Enum):
     month = 'month'

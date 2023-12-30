@@ -29,9 +29,9 @@ class UserInDB(BaseModel):
 
 class UserInfo(BaseModel):
     full_name: str
+    birth_date: date
     username: str
     email: str
-    birth_date: date
 
 
 class UserLogin(BaseModel):
