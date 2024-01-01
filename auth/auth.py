@@ -24,13 +24,10 @@ pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 async def register(user: User, session: AsyncSession = Depends(get_async_session)):
     try:
         if user.password1 == user.password2:
-            print(1)
             if not select(users_data).where(users_data.c.username == user.username).exists:
                 return {'success': False, 'message': 'Username already exists!'}
-            print(1)
             if not select(users_data).where(users_data.c.email == user.email).exists:
                 return {'success': False, 'message': 'Email already exists!'}
-            print(1)
             password = pwd_context.hash(user.password1)
             user_in_db = UserInDB(**dict(user), password=password, joined_at=datetime.utcnow())
             query = insert(users_data).values(**dict(user_in_db))

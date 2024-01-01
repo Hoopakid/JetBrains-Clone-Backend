@@ -44,7 +44,7 @@ user_role = Table(
     Column('user_id', ForeignKey('userdata.id'))
 )
 
-tool = Table(
+tools = Table(
     'tools',
     metadata,
     Column('id', Integer, primary_key=True, autoincrement=True),
@@ -91,7 +91,7 @@ user_payment = Table(
     Column('id', Integer, primary_key=True, autoincrement=True),
     Column('payment_id', Integer, ForeignKey('payment_model.id')),
     Column('user_id', Integer, ForeignKey('userdata.id')),
-    Column('status', Enum(StatusEnum)),
+    Column('status', Enum(StatusEnum, name='status_enum'), default=StatusEnum.processing),
     Column('created_at', TIMESTAMP, default=datetime.utcnow)
 )
 
