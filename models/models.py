@@ -100,6 +100,8 @@ user_coupon = Table(
     metadata,
     Column('id', Integer, primary_key=True, autoincrement=True),
     Column('coupon', String),
+    Column('user_id', Integer, ForeignKey('userdata.id')),
+    Column('created_at', TIMESTAMP, default=datetime.utcnow)
 )
 
 user_custom_coupon = Table(
@@ -108,5 +110,6 @@ user_custom_coupon = Table(
     Column('id', Integer, primary_key=True, autoincrement=True),
     Column('user_id', Integer, ForeignKey('userdata.id')),
     Column('phone_number', Integer),
-    Column('coupon', String)
+    Column('coupon', String),
+    Column('created_at', TIMESTAMP, default=datetime.utcnow)
 )

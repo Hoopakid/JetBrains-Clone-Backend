@@ -18,7 +18,7 @@ from auth.auth import register_router
 from auth.utils import verify_token
 from database import get_async_session
 from models.models import tools, payment_model, LifeTimeEnum, users_data, user_role, file, tools, user_payment, \
-    StatusEnum
+    StatusEnum, user_coupon
 from schemes import PaymentModel, UserPayment
 from utils import generate_coupon
 
@@ -64,7 +64,7 @@ async def payment_user(
             (user_payment.c.payment_id == payment_id) & (user_payment.c.user_id == user_id)
         )
         if_payment = await session.execute(if_payment_query)
-        if if_payment:
+        if if_payment.scalar():
             raise HTTPException(status_code=status.HTTP_204_NO_CONTENT, detail='Already in active')
 
         payment_query = select(payment_model).join(users_data).where(
@@ -132,6 +132,15 @@ async def get_licence_code(
         if not if_payment:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Unauthorized')
         coupon = generate_coupon(user_id)
+
+        insert_coupon_query = insert(user_coupon).values(
+            coupon=coupon,
+            user_id=user_id
+        )
+
+        await session.execute(insert_coupon_query)
+
+        await session.commit()
 
         return {"status": status.HTTP_200_OK, "coupon": coupon}
     except Exception as e:
