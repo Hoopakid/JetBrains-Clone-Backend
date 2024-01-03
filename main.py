@@ -4,7 +4,7 @@ import starlette.status as status
 
 from pathlib import Path
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, insert, update
@@ -18,8 +18,8 @@ from auth.auth import register_router
 from auth.utils import verify_token
 from database import get_async_session
 from models.models import tools, payment_model, LifeTimeEnum, users_data, user_role, file, tools, user_payment, \
-    StatusEnum, user_coupon
-from schemes import PaymentModel, UserPayment
+    StatusEnum, user_coupon, user_custom_coupon
+from schemes import PaymentModel, UserPayment, GetLicenceCustomScheme
 from utils import generate_coupon
 
 app = FastAPI(title='JetBrains', version='1.0.0')
@@ -119,23 +119,42 @@ async def payment_user(
 
 @router.get('/get-licence-code')
 async def get_licence_code(
+        user_payment_id: int,
+        tool_id: int,
         session: AsyncSession = Depends(get_async_session),
         token: dict = Depends(verify_token)
 ):
     try:
+        if_tool_query = select(tools).where(tools.c.id == tool_id)
+        if_tool = await session.execute(if_tool_query)
+        if if_tool is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Tool not found')
+
         user_id = token.get('user_id')
 
         if_payment_query = select(user_payment).where(
-            user_payment.c.user_id == user_id
+            (user_payment.c.user_id == user_id) & (user_payment.c.id == user_payment_id)
         )
         if_payment = await session.execute(if_payment_query)
-        if not if_payment:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Unauthorized')
-        coupon = generate_coupon(user_id)
+        user_payment_result = if_payment.one()
+        if not user_payment_result:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Payment not found')
+        coupon = generate_coupon(user_id, tool_id)
+
+        payment_id = user_payment_result[1]
+        payment_query_for_lifetime = select(payment_model).where(payment_model.c.id == payment_id)
+        payment__result = await session.execute(payment_query_for_lifetime)
+        payment_result = payment__result.one()
+
+        month_or_year = str(payment_result[3])[13:]
+        days = 30 if month_or_year == 'month' else 365
+
+        lifetime = datetime.utcnow() + timedelta(days=days)
 
         insert_coupon_query = insert(user_coupon).values(
             coupon=coupon,
-            user_id=user_id
+            user_id=user_id,
+            lifetime=lifetime
         )
 
         await session.execute(insert_coupon_query)
@@ -144,7 +163,66 @@ async def get_licence_code(
 
         return {"status": status.HTTP_200_OK, "coupon": coupon}
     except Exception as e:
-        raise HTTPException(detail=f'{e}')
+        raise HTTPException(detail=f'{e}', status_code=status.HTTP_400_BAD_REQUEST)
+
+
+@router.get('/get-licence-custom-code')
+async def get_licence_custom_code(
+        user_payment_id: int,
+        tool_id: int,
+        phone_number: int,
+        session: AsyncSession = Depends(get_async_session),
+        token: dict = Depends(verify_token)
+):
+    try:
+        phone_number_query = select(user_custom_coupon).where(user_custom_coupon.c.phone_number == phone_number)
+        phone_number__result = await session.execute(phone_number_query)
+        phone_number_result = phone_number__result.one()
+        if phone_number_result:
+            raise HTTPException(detail='You can get only 1 coupon for 1 phone number',
+                                status_code=status.HTTP_400_BAD_REQUEST)
+
+        user_id = token.get('user_id')
+
+        if_tool_query = select(tools).where(tools.c.id == tool_id)
+        if_tool = await session.execute(if_tool_query)
+        if not if_tool.scalar():
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Tool not found')
+
+        if_payment_query = select(user_payment).where(
+            (user_payment.c.user_id == user_id) & (user_payment.c.id == user_payment_id)
+        )
+        coupon = generate_coupon(user_id, tool_id)
+        if_payment = await session.execute(if_payment_query)
+        user_payment_result = if_payment.first()
+        if not user_payment_result:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Payment not found')
+
+        payment_id = user_payment_result[1]
+        payment_query_for_lifetime = select(payment_model).where(payment_model.c.id == payment_id)
+        payment__result = await session.execute(payment_query_for_lifetime)
+        payment_result = payment__result.first()
+
+        month_or_year = str(payment_result[3])[13:]
+        days = 30 if month_or_year == 'month' else 365
+
+        lifetime = datetime.utcnow() + timedelta(days=days)
+
+        insert_coupon_query = insert(user_custom_coupon).values(
+            user_id=user_id,
+            phone_number=phone_number,
+            tool_id=tool_id,
+            coupon=coupon,
+            lifetime=lifetime
+        )
+
+        await session.execute(insert_coupon_query)
+
+        await session.commit()
+
+        return {"status": status.HTTP_200_OK, "coupon": coupon}
+    except Exception as e:
+        raise HTTPException(detail=f'{e}', status_code=status.HTTP_400_BAD_REQUEST)
 
 
 @router.post('/upload-file')

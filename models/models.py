@@ -68,6 +68,11 @@ class LifeTimeEnum(enum.Enum):
     year = 'year'
 
 
+class EndTimeEnum(enum.Enum):
+    active = 'active'
+    expired = 'expired'
+
+
 payment_model = Table(
     'payment_model',
     metadata,
@@ -101,7 +106,10 @@ user_coupon = Table(
     Column('id', Integer, primary_key=True, autoincrement=True),
     Column('coupon', String),
     Column('user_id', Integer, ForeignKey('userdata.id')),
-    Column('created_at', TIMESTAMP, default=datetime.utcnow)
+    Column('tool_id', Integer, ForeignKey('tools.id')),
+    Column('created_at', TIMESTAMP, default=datetime.utcnow),
+    Column('lifetime', TIMESTAMP),
+    Column('status', Enum(EndTimeEnum), default=EndTimeEnum.active)
 )
 
 user_custom_coupon = Table(
@@ -110,6 +118,9 @@ user_custom_coupon = Table(
     Column('id', Integer, primary_key=True, autoincrement=True),
     Column('user_id', Integer, ForeignKey('userdata.id')),
     Column('phone_number', Integer),
+    Column('tool_id', Integer, ForeignKey('tools.id')),
     Column('coupon', String),
-    Column('created_at', TIMESTAMP, default=datetime.utcnow)
+    Column('created_at', TIMESTAMP, default=datetime.utcnow),
+    Column('lifetime', TIMESTAMP),
+    Column('status', Enum(EndTimeEnum), default=EndTimeEnum.active)
 )

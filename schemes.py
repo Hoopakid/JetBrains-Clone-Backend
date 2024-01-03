@@ -17,3 +17,8 @@ class PaymentModel(BaseModel):
 class UserPayment(BaseModel):
     payment_id: int
 
+
+class GetLicenceCustomScheme(BaseModel):
+    user_payment_id: int
+    tool_id: int
+    phone_number: int
