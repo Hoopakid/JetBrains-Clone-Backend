@@ -1,3 +1,4 @@
+import os.path
 import secrets
 import aiofiles
 import starlette.status as status
@@ -13,6 +14,7 @@ from sqlalchemy.exc import NoResultFound
 
 from fastapi import FastAPI, APIRouter, Depends, UploadFile
 from fastapi.exceptions import HTTPException
+from fastapi.responses import FileResponse
 
 from auth.auth import register_router
 from auth.utils import verify_token
@@ -255,7 +257,7 @@ async def upload_file(
         insert_query = insert(file).values(
             tool_id=tool_id,
             file=out_file,
-            hashcode=code
+            hash=code
         )
         await session.execute(insert_query)
         await session.commit()
@@ -264,5 +266,29 @@ async def upload_file(
     return {'success': True, 'message': 'Uploaded successfully'}
 
 
+@router.get('/download-file{hashcode}')
+async def download_file(
+        hashcode: str,
+        session: AsyncSession = Depends(get_async_session),
+):
+    if hashcode is None:
+        raise HTTPException(status_code=400, detail='Invalid hashcode')
+
+    try:
+        query = select(file).where(file.c.hash == hashcode)
+        file_data = await session.execute(query)
+        data = file_data.one()
+        BASEDIR = os.path.dirname(os.path.abspath(__file__))
+        file_url = os.path.join(BASEDIR, f'uploads/{data.file}')
+        file_name = data.file.split('/')[-1]
+
+    except Exception as e:
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Not Found')
+
+    return FileResponse(path=file_url, media_type='application/octet-stream', filename=file_name)
+
 app.include_router(register_router, prefix='/auth')
 app.include_router(router, prefix='/main')
+
+
+
