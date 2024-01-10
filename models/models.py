@@ -6,8 +6,6 @@ from sqlite3 import Timestamp
 from sqlalchemy import Table, MetaData, Column, String, Integer, Text, Boolean, Date, ForeignKey, Float, DECIMAL, Enum, \
     TIMESTAMP
 
-from sqlalchemy.dialects.postgresql import ENUM
-
 metadata = MetaData()
 
 

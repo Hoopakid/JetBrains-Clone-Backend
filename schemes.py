@@ -18,6 +18,11 @@ class UserPayment(BaseModel):
     payment_id: int
 
 
+class ToolCreate(BaseModel):
+    tool_name: str
+    monthly_fee: float
+    yearly_fee: float
+
 class GetLicenceCustomScheme(BaseModel):
     user_payment_id: int
     tool_id: int
