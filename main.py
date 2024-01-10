@@ -19,17 +19,26 @@ from fastapi.responses import FileResponse
 from auth.auth import register_router
 from auth.utils import verify_token
 from database import get_async_session
-from models.models import tools, payment_model, LifeTimeEnum, users_data, user_role, file, tools, user_payment, \
+from models.models import (
+    tools, payment_model,
+    LifeTimeEnum, users_data,
+    user_role, file,
+    tools, user_payment,
     StatusEnum, user_coupon
-from schemes import PaymentModel, UserPayment, ToolCreate
-    StatusEnum, user_coupon, user_custom_coupon
-from schemes import PaymentModel, UserPayment, GetLicenceCustomScheme
+)
+from schemes import (
+    PaymentModel, UserPayment,
+    ToolCreate, StatusEnum,
+    user_coupon, user_custom_coupon,
+    GetLicenceCustomScheme
+)
 from utils import generate_coupon
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql import delete, update
+
 app = FastAPI(title='JetBrains', version='1.0.0')
 router = APIRouter()
 
@@ -273,7 +282,11 @@ async def upload_file(
 
 
 @app.post("/tool")
-async def create_tool(tool_update: ToolCreate, session: AsyncSession = Depends(get_async_session), token: dict = Depends(verify_token)):
+async def create_tool(
+        tool_update: ToolCreate,
+        session: AsyncSession = Depends(get_async_session),
+        token: dict = Depends(verify_token)
+):
     if token is None:
         raise HTTPException(status_code=401, detail='Token not provided!')
 
@@ -287,17 +300,23 @@ async def create_tool(tool_update: ToolCreate, session: AsyncSession = Depends(g
 
     if not result.scalar():
         raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED)
-    
+
     try:
-        new_tool = tools.insert().values(tool_name=tool_update.tool_name, monthly_fee=tool_update.monthly_fee, yearly_fee=tool_update.yearly_fee)
+        new_tool = tools.insert().values(tool_name=tool_update.tool_name, monthly_fee=tool_update.monthly_fee,
+                                         yearly_fee=tool_update.yearly_fee)
         await session.execute(new_tool)
         await session.commit()
         return {"message": "Tool created successfully"}
     except Exception as e:
         raise HTTPException(detail=f"{e}")
 
+
 @app.get("/tool{tool_id}")
-async def read_tool(tool_id: int, session: AsyncSession = Depends(get_async_session), token: dict = Depends(verify_token)):
+async def read_tool(
+        tool_id: int,
+        session: AsyncSession = Depends(get_async_session),
+        token: dict = Depends(verify_token)
+):
     if token is None:
         raise HTTPException(status_code=401, detail='Token not provided!')
 
@@ -324,8 +343,13 @@ async def read_tool(tool_id: int, session: AsyncSession = Depends(get_async_sess
     except Exception as e:
         raise HTTPException(detail=f"{e}")
 
+
 @app.put("/tool{tool_id}")
-async def update_tool(tool_update: ToolCreate, session: AsyncSession = Depends(get_async_session), token: dict = Depends(verify_token)):
+async def update_tool(
+        tool_update: ToolCreate,
+        session: AsyncSession = Depends(get_async_session),
+        token: dict = Depends(verify_token)
+):
     if token is None:
         raise HTTPException(status_code=401, detail='Token not provided!')
 
@@ -341,7 +365,9 @@ async def update_tool(tool_update: ToolCreate, session: AsyncSession = Depends(g
         raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     try:
-        query = update(tools).where(tools.c.id == tool_update.tool_id).values(tool_name=tool_update.tool_name, monthly_fee=tool_update.monthly_fee, yearly_fee=tool_update.yearly_fee)
+        query = update(tools).where(tools.c.id == tool_update.tool_id).values(tool_name=tool_update.tool_name,
+                                                                              monthly_fee=tool_update.monthly_fee,
+                                                                              yearly_fee=tool_update.yearly_fee)
         result = await session.execute(query)
         await session.commit()
 
@@ -349,12 +375,16 @@ async def update_tool(tool_update: ToolCreate, session: AsyncSession = Depends(g
             raise HTTPException(status_code=404, detail="Tool not found")
 
         return {"message": "Tool updated successfully"}
-    except SQLAlchemyError as e:
-        await session.rollback()
-        raise HTTPException(status_code=500, detail="Database error")
+    except Exception as e:
+        raise HTTPException(detail=f"{e}")
+
 
 @app.delete("/tool{tool_id}")
-async def delete_tool(tool_id: int, session: AsyncSession = Depends(get_async_session), token: dict = Depends(verify_token)):
+async def delete_tool(
+        tool_id: int,
+        session: AsyncSession = Depends(get_async_session),
+        token: dict = Depends(verify_token)
+):
     if token is None:
         raise HTTPException(status_code=401, detail='Token not provided!')
 
@@ -378,9 +408,9 @@ async def delete_tool(tool_id: int, session: AsyncSession = Depends(get_async_se
             raise HTTPException(status_code=404, detail="Tool not found")
 
         return {"message": "Tool deleted successfully"}
-    except SQLAlchemyError as e:
-        await session.rollback()
-        raise HTTPException(status_code=500, detail="Database error")
+    except Exception as e:
+        raise HTTPException(detail=f"{e}")
+
 
 @router.get('/download-file{hashcode}')
 async def download_file(
@@ -406,6 +436,3 @@ async def download_file(
 
 app.include_router(register_router, prefix='/auth')
 app.include_router(router, prefix='/main')
-
-
-
