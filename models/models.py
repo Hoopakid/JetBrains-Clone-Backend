@@ -1,10 +1,10 @@
 from datetime import datetime
 
 import enum
-from sqlite3 import Timestamp
 
 from sqlalchemy import Table, MetaData, Column, String, Integer, Text, Boolean, Date, ForeignKey, Float, DECIMAL, Enum, \
     TIMESTAMP
+from sqlalchemy.orm import relationship
 
 metadata = MetaData()
 
@@ -121,4 +121,51 @@ user_custom_coupon = Table(
     Column('created_at', TIMESTAMP, default=datetime.utcnow),
     Column('lifetime', TIMESTAMP),
     Column('status', Enum(EndTimeEnum), default=EndTimeEnum.active)
+)
+
+combo = Table(
+    'combo',
+    metadata,
+    Column('id', Integer, primary_key=True, autoincrement=True),
+    Column('combo_name', String, unique=True),
+    Column('monthly_fee', Float, default=0.0),
+    Column('yearly_fee', Float, default=0.0),
+)
+
+combo_products = Table(
+    'combo_products',
+    metadata,
+    Column('id', Integer, primary_key=True, autoincrement=True),
+    Column('combo_id', Integer, ForeignKey('combo.id')),
+    Column('tool_id', Integer, ForeignKey('tools.id')),
+)
+
+tool_likes = Table(
+    'tool_like',
+    metadata,
+    Column('id', Integer, primary_key=True),
+    Column('user_id', Integer, ForeignKey('userdata.id')),
+    Column('tool_id', Integer, ForeignKey('tools.id')),
+    Column('time', TIMESTAMP, default=datetime.utcnow),
+
+)
+
+
+class NumEnum(enum.Enum):
+    one = 1,
+    two = 2,
+    three = 3,
+    four = 4,
+    five = 5,
+
+
+tool_comments = Table(
+    'tool_comment',
+    metadata,
+    Column('id', Integer, primary_key=True),
+    Column('user_id', Integer, ForeignKey('userdata.id'), unique=True),
+    Column('tool_id', Integer, ForeignKey('tools.id')),
+    Column('time', TIMESTAMP, default=datetime.utcnow),
+    Column('comment', String),
+    Column('status', Enum(NumEnum), default=NumEnum.five)
 )

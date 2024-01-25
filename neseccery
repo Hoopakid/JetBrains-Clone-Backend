@@ -1,0 +1,6 @@
+sudo docker-compose up --build --> docker-composeni run qilish
+sudo systemctl stop postgresql --> agar postgres ishlab turgan bo'lsa shuni o'chirib keyin run qilish kerak
+sudo docker-compose ps --> bizdagi ishlagan yoki ishlab turgan dockerlarni korstaib turadi
+sudo docker exec -it <container_name> psql -U <database user> <database name> -- docker dagi db ga kiradi.
+sudo docker-compose -f docker-compose.yml exec fastapi alembic revision --autogenerate -m "////" --> for makemigrations
+sudo docker-compose -f docker-compose.yml exec fastapi alembic upgrade head --> for migrate
