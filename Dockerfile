@@ -1,6 +1,6 @@
 FROM python:3.9-alpine
 
-WORKDIR /app
+WORKDIR /home/hoopakid/PythonMain/FastAPI/JetBrainsCloneBackend
 
 COPY ./requirements.txt .
 
