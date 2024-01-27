@@ -1,12 +1,13 @@
 from celery import Celery
 from fastapi_mail import ConnectionConfig
 
+from config import REDIS_HOST
 from tasks.email_tasks.reset_password import obj
 
 celery = Celery(
     "tasks",
-    broker="redis://redis:6379/0",
-    backend="redis://redis:6379/0"
+    broker=f"redis://{REDIS_HOST}/0",
+    backend=f"redis://{REDIS_HOST}/0"
 )
 
 
