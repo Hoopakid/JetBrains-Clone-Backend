@@ -1,0 +1,19 @@
+1. Chat qismi: ustoz uni o'rgatadilar qanaqa qilishni ya'ni WebSocket orqali
+2. ElasticSearch qilish.
+3. Docker-Compose ni qilish.
+4. Auth qismini to'liq tugatish.
+5. Man yozgan modellar bo'yicha user payment qismini qilish.
+6. Admin ni role product larni CRUD ini qila olish faqat admin qilishi kerak
+7. Filter qismini qilish (Dasturlash tillari boyicha & dasturlar boyicha)
+8. Ilovalarga narxlarni qaytarish.
+9. Ilovalarni ozini yuklab oladigan qilib qaytarish.
+8. Zagruzka qismi yani jetbrains dan ilovasini yuklab olinadigan qilish kerak unga model yozilib zagruzka qismini qilish kerak.
+10. Login Register da facebook google yoki github bilan login qiladigan qismi
+11. Celery yozish Cupon endtime uchun
+12. Saved Messages(Izbrnniy) ga ob qoyish ilovalarni
+13. Ilovaga Izoh qoldirish, layk bosish
+14. Litsenziya sotib olgandan keyin ozini sotib olgan productiga layk bosish, izoh qoldirish. (faqat ozinikiga)
+15. Ustozdan soriyman real time webchat ni Ai bilan qib korishga agar ruxsat bersala qilamiz.
+16. Tekin ilovalar, Pulli ilovalar, yangi qoshilgan ilovalar, va hammasini qaytarish.
+17. Custom combo tools yigish user tomonidan ozi yigish, yoki admin tomonidan yigilganlarni sotib olish.
+

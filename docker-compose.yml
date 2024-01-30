@@ -4,12 +4,14 @@ services:
   fastapi:
     build: .
     container_name: fast
-    command: uvicorn main:app --reload --host 0.0.0.0 --port 8000 --proxy-headers
+    command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; uvicorn main:app --host 0.0.0.0'
     volumes:
-      - .:/home/hoopakid/PythonMain/FastAPI/JetBrainsCloneBackend
+      - .:/app
       - media_volume:/uploads
     env_file:
       - ./.env
+    environment:
+      - DATABASE_URL=postgresql://DB_USER:DB_PASSWORD@DB_HOST:DB_PORT/DB_NAME
     ports:
       - '8000:8000'
     depends_on:
@@ -30,9 +32,9 @@ services:
 
   celery:
     build: .
-    command: celery -A tasks worker --loglevel=info
+    command: celery -A tasks.config worker --loglevel=info
     volumes:
-      - .:/home/hoopakid/PythonMain/FastAPI/JetBrainsCloneBackend
+      - .:/app
     depends_on:
       - redis
 
