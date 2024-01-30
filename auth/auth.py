@@ -10,7 +10,7 @@ from datetime import datetime
 from pydantic import EmailStr
 
 from config import GoogleObjectsForLogin
-from tasks.email_tasks.reset_password import send_mail_for_forget_password
+from tasks.tasks import send_mail_for_forget_password
 from auth.schema import UserInfo, User, UserInDB, UserLogin
 from database import get_async_session
 

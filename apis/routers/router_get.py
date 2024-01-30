@@ -9,9 +9,7 @@ from utils.auth_utils import verify_token
 from dals.dals import CartDAL, ComboDAL
 from database import get_async_session
 from models.models import user_coupon, tools, user_payment, payment_model, users_data, user_custom_coupon
-from tasks.coupon_tasks.end_coupon import end_coupon_time
-from tasks.coupon_tasks.end_custom_coupon import end_custom_coupon_time
-from tasks.email_tasks.message import send_mail_task
+from tasks.tasks import end_coupon_time, end_custom_coupon_time, send_mail_task
 from utils.utils import generate_coupon
 
 get_router = APIRouter()

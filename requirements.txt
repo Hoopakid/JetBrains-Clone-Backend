@@ -20,3 +20,4 @@ python-multipart
 aiohttp
 fastapi-mail
 requests
+gunicorn

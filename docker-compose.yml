@@ -4,7 +4,7 @@ services:
   fastapi:
     build: .
     container_name: fast
-    command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; uvicorn main:app --host 0.0.0.0'
+    command: gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000 #["/app/docker/app.sh"]
     volumes:
       - .:/app
       - media_volume:/uploads
@@ -21,6 +21,9 @@ services:
   db:
     container_name: database
     image: postgres:15.0-alpine
+    command: -p 5432
+    expose:
+      - 5432
     env_file:
       - ./.env
     environment:
@@ -32,7 +35,8 @@ services:
 
   celery:
     build: .
-    command: celery -A tasks.config worker --loglevel=info
+    container_name: celery
+    command: celery --app=tasks.tasks:celery worker --loglevel=INFO #["/app/docker/celery.sh", "celery"]
     volumes:
       - .:/app
     depends_on:
@@ -40,6 +44,8 @@ services:
 
   redis:
     image: redis:6-alpine
+    container_name: redis
+    command: --port 6379
     volumes:
       - redis_data:/data/
     expose:
