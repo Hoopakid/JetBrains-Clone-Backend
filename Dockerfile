@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir --upgrade pip \
 
 COPY . .
 
-RUN alembic upgrade head
+#RUN alembic upgrade head
 
 WORKDIR src
 
