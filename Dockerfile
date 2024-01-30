@@ -4,7 +4,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 RUN mkdir /app
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
 COPY requirements.txt .
 
@@ -13,7 +13,5 @@ RUN pip install --no-cache-dir --upgrade pip \
 
 
 COPY . .
-
-RUN chmod a+x /app/docker/*.sh
 
 CMD ["gunicorn", "main:app", "--workers", "4", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind=0.0.0.0:8000"]
